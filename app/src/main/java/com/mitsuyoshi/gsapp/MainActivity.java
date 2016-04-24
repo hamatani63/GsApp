@@ -2,8 +2,12 @@
 //どのアクティビティーが起動時に実行されるのかはAndroidManifestに記述されています。
 package com.mitsuyoshi.gsapp;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -27,23 +31,51 @@ public class MainActivity extends AppCompatActivity {
     private MessageRecordsAdapter mAdapter;
 
     //起動時にOSから実行される関数です。
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        //メイン画面のレイアウトをセットしています。ListView
+//        setContentView(R.layout.activity_main);
+//
+//        //アダプターを作成します。newでクラスをインスタンス化しています。
+//        mAdapter = new MessageRecordsAdapter(this);
+//
+//        //ListViewのViewを取得
+//        ListView listView = (ListView) findViewById(R.id.mylist);
+//        //CardView cardView = (CardView) findViewById(R.id.mylist);
+//
+//        //ListViewにアダプターをセット。
+//        listView.setAdapter(mAdapter);
+//        //一覧のデータを作成して表示します。
+//        fetch();
+//
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //メイン画面のレイアウトをセットしています。ListView
         setContentView(R.layout.activity_main);
 
-        //アダプターを作成します。newでクラスをインスタンス化しています。
-        mAdapter = new MessageRecordsAdapter(this);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.mylist);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(llm);
 
-        //ListViewのViewを取得
-        ListView listView = (ListView) findViewById(R.id.mylist);
-        //ListViewにアダプターをセット。
-        listView.setAdapter(mAdapter);
-        //一覧のデータを作成して表示します。
-        fetch();
-
+        recyclerView.setAdapter(new MyRecyclerAdapter(generatePalettes()));
     }
+
+    private ArrayList<Palette> generatePalettes() {
+        ArrayList<Palette> palettes = new ArrayList<>();
+        palettes.add(new Palette("RED", "#D32F2F", Color.parseColor("#d32f2f")));
+        palettes.add(new Palette("PINK", "#FF4081", Color.parseColor("#ff4081")));
+        palettes.add(new Palette("INDIGO", "#7B1FA2", Color.parseColor("#7b1fa2")));
+        palettes.add(new Palette("BLUE", "#536DFE", Color.parseColor("#536dfe")));
+        palettes.add(new Palette("GREEN", "#388E3C", Color.parseColor("#388e3c")));
+        palettes.add(new Palette("ORANGE", "#FF5722", Color.parseColor("#ff5722")));
+        palettes.add(new Palette("AMBER", "#FFA000", Color.parseColor("#ffa000")));
+        return palettes;
+    }
+
     //自分で作った関数です。一覧のデータを作成して表示します。
     private void fetch() {
         //jsonデータをサーバーから取得する通信機能です。Volleyの機能です。通信クラスのインスタンスを作成しているだけです。通信はまだしていません。
