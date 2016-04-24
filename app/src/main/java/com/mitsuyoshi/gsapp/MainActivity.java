@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private void fetch() {
         //jsonデータをサーバーから取得する通信機能です。Volleyの機能です。通信クラスのインスタンスを作成しているだけです。通信はまだしていません。
         JsonObjectRequest request = new JsonObjectRequest(
-                "https://dl.dropboxusercontent.com/u/29477693/myJson.txt" ,//jsonデータが有るサーバーのURLを指定します。
+                "https://dl.dropboxusercontent.com/u/29477693/myJson02.txt" ,//jsonデータが有るサーバーのURLを指定します。
                 null,
                 //サーバー通信した結果、成功した時の処理をするクラスを作成しています。
                 new Response.Listener<JSONObject>() {
@@ -92,8 +92,9 @@ public class MainActivity extends AppCompatActivity {
             //jsonの値を取得します。
             String title = jsonMessage.getString("comment");
             String url = jsonMessage.getString("imageUrl");
+            String other = jsonMessage.getString("other");
             //jsonMessageを新しく作ります。
-            MessageRecord record = new MessageRecord(url, title);
+            MessageRecord record = new MessageRecord(url, title, other);
             //MessageRecordの配列に追加します。
             records.add(record);
         }

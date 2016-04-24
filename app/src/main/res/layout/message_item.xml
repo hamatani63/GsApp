@@ -13,10 +13,21 @@
         android:id="@+id/image1"/>
 
     <TextView
+        android:autoLink="web"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textAppearance="?android:textAppearanceLarge"
+        android:textAppearance="?android:textAppearanceMedium"
         tools:text="comment"
         android:id="@+id/text1"/>
+
+    <TextView
+        android:autoLink="web"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="?android:textAppearanceSmall"
+        tools:text="comment"
+        android:id="@+id/text2"/>
+
 </LinearLayout>
