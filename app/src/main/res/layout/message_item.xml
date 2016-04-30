@@ -4,41 +4,42 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/card"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="96dp"
     card_view:cardCornerRadius="4dp"
-    android:layout_margin="5dp">
+    android:layout_margin="4dp">
 
     <RelativeLayout
         android:id="@+id/cardBackground"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="8dp">
 
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/image"
-            android:layout_width="fill_parent"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop" />
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentLeft = "true"
+            android:layout_marginRight="8dp" />
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text="Title"
-            android:gravity="center_vertical"
-            android:textColor="@android:color/white"
-            android:textSize="30dp"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/image"
+            android:layout_toRightOf="@+id/image"
+            android:textSize="18dp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/content"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Content"
-            android:gravity="center_vertical"
-            android:textColor="@android:color/white"
-            android:textSize="25dp"
-            android:layout_below="@+id/title"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="5dp"/>
+            android:layout_below="@id/title"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/image"
+            android:textSize="14dp" />
 
     </RelativeLayout>
 
