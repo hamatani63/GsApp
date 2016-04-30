@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -29,51 +30,30 @@ public class MainActivity extends AppCompatActivity {
 
     //アダプタークラスです。
     private MessageRecordsAdapter mAdapter;
+    //private ArrayList<MessageRecord> mDataset;
+    private List<MessageRecord> mMessageRecords = new ArrayList<MessageRecord>();
 
     //起動時にOSから実行される関数です。
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        //メイン画面のレイアウトをセットしています。ListView
-//        setContentView(R.layout.activity_main);
-//
-//        //アダプターを作成します。newでクラスをインスタンス化しています。
-//        mAdapter = new MessageRecordsAdapter(this);
-//
-//        //ListViewのViewを取得
-//        ListView listView = (ListView) findViewById(R.id.mylist);
-//        //CardView cardView = (CardView) findViewById(R.id.mylist);
-//
-//        //ListViewにアダプターをセット。
-//        listView.setAdapter(mAdapter);
-//        //一覧のデータを作成して表示します。
-//        fetch();
-//
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //メイン画面のレイアウトをセットしています。
         setContentView(R.layout.activity_main);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.mylist);
+        //アダプターを作成します。newでクラスをインスタンス化しています。
+        mAdapter = new MessageRecordsAdapter();
+        mAdapter.setMessageRecords(mMessageRecords);
+
+        //RecyclerViewのViewを取得
+        RecyclerView rv = (RecyclerView) findViewById(R.id.mylist);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(llm);
+        rv.setLayoutManager(llm);
 
-        recyclerView.setAdapter(new MyRecyclerAdapter(generatePalettes()));
-    }
-
-    private ArrayList<Palette> generatePalettes() {
-        ArrayList<Palette> palettes = new ArrayList<>();
-        palettes.add(new Palette("RED", "#D32F2F", Color.parseColor("#d32f2f")));
-        palettes.add(new Palette("PINK", "#FF4081", Color.parseColor("#ff4081")));
-        palettes.add(new Palette("INDIGO", "#7B1FA2", Color.parseColor("#7b1fa2")));
-        palettes.add(new Palette("BLUE", "#536DFE", Color.parseColor("#536dfe")));
-        palettes.add(new Palette("GREEN", "#388E3C", Color.parseColor("#388e3c")));
-        palettes.add(new Palette("ORANGE", "#FF5722", Color.parseColor("#ff5722")));
-        palettes.add(new Palette("AMBER", "#FFA000", Color.parseColor("#ffa000")));
-        return palettes;
+        //RecyclerViewにアダプターをセット。
+        rv.setAdapter(mAdapter);
+        //一覧のデータを作成して表示します。
+        fetch();
     }
 
     //自分で作った関数です。一覧のデータを作成して表示します。
@@ -89,9 +69,10 @@ public class MainActivity extends AppCompatActivity {
                         //try catchでエラーを処理します。tryが必要かどうかはtryに記述している関数次第です。
                         try {
                             //jsonデータを下記で定義したparse関数を使いデータクラスにセットしています。
-                            List<MessageRecord> messageRecords = parse(jsonObject);
+                            mMessageRecords = parse(jsonObject);
                             //データをアダプターにセットしています。
-                            mAdapter.setMessageRecords(messageRecords);
+                            mAdapter.setMessageRecords(mMessageRecords);
+                            mAdapter.notifyDataSetChanged();
                         }
                         catch(JSONException e) {
                             //トーストを表示
@@ -111,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         //VolleyApplicationはnewしていません。これはAndroidManifestで記載しているので起動時に自動的にnewされています。
         VolleyApplication.getInstance().getRequestQueue().add(request);
     }
+
     //サーバにあるjsonデータをMessageRecordに変換します。
     private List<MessageRecord> parse(JSONObject json) throws JSONException {
         //空のMessageRecordデータの配列を作成
@@ -122,11 +104,11 @@ public class MainActivity extends AppCompatActivity {
             //１つだけ取り出します。
             JSONObject jsonMessage = jsonMessages.getJSONObject(i);
             //jsonの値を取得します。
-            String title = jsonMessage.getString("comment");
             String url = jsonMessage.getString("imageUrl");
-            String other = jsonMessage.getString("other");
+            String title = jsonMessage.getString("comment");
+            String content = jsonMessage.getString("other");
             //jsonMessageを新しく作ります。
-            MessageRecord record = new MessageRecord(url, title, other);
+            MessageRecord record = new MessageRecord(url, title, content, i);
             //MessageRecordの配列に追加します。
             records.add(record);
         }
