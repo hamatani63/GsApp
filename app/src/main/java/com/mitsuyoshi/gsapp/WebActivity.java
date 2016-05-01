@@ -19,10 +19,9 @@ public class WebActivity extends ActionBarActivity {
         //レイアウトをセットします
         setContentView(R.layout.activity_web);
 
-        // Intent を取得。
-        //Intentでアクティビティー間のデータを受け渡しします。Intentの値を受け取るために作成。
+        //Intent を取得: Intentでアクティビティー間のデータを受け渡しします。Intentの値を受け取るために作成。
         Intent intent = getIntent();
-        // キーを元にインテントデータを取得する
+        //キーを元にインテントデータを取得する
         String url  = intent.getStringExtra("url");
 
         //WebViewを探す

@@ -2,16 +2,12 @@
 //どのアクティビティーが起動時に実行されるのかはAndroidManifestに記述されています。
 package com.mitsuyoshi.gsapp;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -41,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //アダプターを作成します。newでクラスをインスタンス化しています。
-        mAdapter = new MessageRecordsAdapter();
+        mAdapter = new MessageRecordsAdapter(this);
         mAdapter.setMessageRecords(mMessageRecords);
 
         //RecyclerViewのViewを取得
@@ -60,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private void fetch() {
         //jsonデータをサーバーから取得する通信機能です。Volleyの機能です。通信クラスのインスタンスを作成しているだけです。通信はまだしていません。
         JsonObjectRequest request = new JsonObjectRequest(
-                "https://dl.dropboxusercontent.com/u/29477693/myJson02.txt" ,//jsonデータが有るサーバーのURLを指定します。
+                //"https://dl.dropboxusercontent.com/u/29477693/myJson02.txt" ,//jsonデータが有るサーバーのURLを指定します。
+                "https://dl.dropboxusercontent.com/u/29477693/myJson01.txt" ,
                 null,
                 //サーバー通信した結果、成功した時の処理をするクラスを作成しています。
                 new Response.Listener<JSONObject>() {
@@ -105,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
             JSONObject jsonMessage = jsonMessages.getJSONObject(i);
             //jsonの値を取得します。
             String url = jsonMessage.getString("imageUrl");
-            String title = jsonMessage.getString("comment");
-            String content = jsonMessage.getString("other");
+            String title = jsonMessage.getString("title");
+            String content = jsonMessage.getString("content");
             //jsonMessageを新しく作ります。
             MessageRecord record = new MessageRecord(url, title, content, i);
             //MessageRecordの配列に追加します。

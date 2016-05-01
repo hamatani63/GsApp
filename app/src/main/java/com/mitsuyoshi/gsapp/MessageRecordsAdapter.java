@@ -1,6 +1,7 @@
 //ListViewに１つのセルの情報(message_item.xmlとMessageRecord)を結びつけるためのクラス
 package com.mitsuyoshi.gsapp;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,15 +15,17 @@ import java.util.List;
 public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHolder> {
     private ImageLoader mImageLoader;
     private List<MessageRecord> mDataList;
+    private Context mContext;
 
     //アダプターを作成する関数。コンストラクター。クラス名と同じです。
-    public MessageRecordsAdapter(){
+    public MessageRecordsAdapter(Context context){
         //キャッシュメモリを確保して画像を取得するクラスを作成。これを使って画像をダウンロードする。Volleyの機能
         mImageLoader = new ImageLoader(VolleyApplication.getInstance().getRequestQueue(), new BitmapLruCache());
+        mContext = context;
     }
 
 
-    //表示するViewを返します。これがListVewの１つのセルとして表示されます。表示されるたびに実行されます。
+//    //表示するViewを返します。これがListVewの１つのセルとして表示されます。表示されるたびに実行されます。
 //    @Override
 //    public View getView(int position, View convertView, ViewGroup parent) {
 //        //convertViewをチェックし、Viewがないときは新しくViewを作成します。convertViewがセットされている時は未使用なのでそのまま再利用します。メモリーに優しい。
@@ -36,10 +39,10 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
 //        TextView textView2 = (TextView) convertView.findViewById(R.id.text2);
 //
 //        //webリンクを制御するプログラムはここから
-//        // TextView に LinkMovementMethod を登録します
+//        //TextView に LinkMovementMethod を登録します
 //        //TextViewをタップした時のイベントリスナー（タップの状況を監視するクラス）を登録します。onTouchにタップした時の処理を記述します。buttonやほかのViewも同じように記述できます。
 //        textView1.setOnTouchListener(new ViewGroup.OnTouchListener() {
-//            //タップした時の処理
+//            //タップした時の処理aaa
 //            @Override
 //            public boolean onTouch(final View view, MotionEvent event) {
 //                //タップしたのはTextViewなのでキャスト（型の変換）する
@@ -97,16 +100,16 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
     @Override
     public MessageRecordHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_item, viewGroup, false);
-        return new MessageRecordHolder(v);
+        return new MessageRecordHolder(mContext, v);
     }
 
     @Override
     public void onBindViewHolder(MessageRecordHolder messageRecordHolder, int position) {
         MessageRecord m = mDataList.get(position);
+        messageRecordHolder.card.setCardBackgroundColor(m.getIntValue());
         messageRecordHolder.image.setImageUrl(m.getImageUrl(), mImageLoader);
         messageRecordHolder.titleText.setText(m.getTitle());
         messageRecordHolder.contentText.setText(m.getContent());
-        messageRecordHolder.card.setCardBackgroundColor(m.getIntValue());
     }
 
     @Override
