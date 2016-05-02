@@ -9,8 +9,6 @@ import android.widget.Toast;
 
 import com.android.volley.toolbox.NetworkImageView;
 
-import org.w3c.dom.Text;
-
 public class MessageRecordHolder extends RecyclerView.ViewHolder {
 
     protected NetworkImageView image;

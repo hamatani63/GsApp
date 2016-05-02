@@ -16,7 +16,6 @@ import java.util.List;
 public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHolder> {
     private ImageLoader mImageLoader;
     private List<MessageRecord> mDataList;
-    private String mWebAddress;
 
     //アダプターを作成する関数。コンストラクター。クラス名と同じです。
     public MessageRecordsAdapter(){
