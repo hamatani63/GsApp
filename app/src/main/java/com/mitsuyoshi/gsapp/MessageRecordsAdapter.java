@@ -1,7 +1,7 @@
 //ListViewに１つのセルの情報(message_item.xmlとMessageRecord)を結びつけるためのクラス
 package com.mitsuyoshi.gsapp;
 
-import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,13 +15,53 @@ import java.util.List;
 public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHolder> {
     private ImageLoader mImageLoader;
     private List<MessageRecord> mDataList;
-    private Context mContext;
+    private String mWebAddress;
 
     //アダプターを作成する関数。コンストラクター。クラス名と同じです。
-    public MessageRecordsAdapter(Context context){
+    public MessageRecordsAdapter(){
         //キャッシュメモリを確保して画像を取得するクラスを作成。これを使って画像をダウンロードする。Volleyの機能
         mImageLoader = new ImageLoader(VolleyApplication.getInstance().getRequestQueue(), new BitmapLruCache());
-        mContext = context;
+    }
+
+    //データをセットしなおす関数
+    public void setMessageRecords(List<MessageRecord> dataList) {
+        mDataList = dataList;
+    }
+
+    @Override
+    public MessageRecordHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_item, viewGroup, false);
+        return new MessageRecordHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(MessageRecordHolder messageRecordHolder, int position) {
+        final MessageRecord m = mDataList.get(position);
+        messageRecordHolder.card.setCardBackgroundColor(m.getIntValue());
+        messageRecordHolder.image.setImageUrl(m.getImageUrl(), mImageLoader);
+        messageRecordHolder.titleText.setText(m.getTitle());
+        messageRecordHolder.content1Text.setText(m.getContent1());
+        messageRecordHolder.content2Text.setText(m.getContent2());
+
+        //画像クリックでWebサイト表示
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //WebView表示
+                Intent intent = new Intent(view.getContext(), WebActivity.class);
+                // 渡したいデータとキーを指定する。urlという名前でリンクの文字列を渡しています。
+                intent.putExtra("url", m.getShopUrl());
+                // 遷移先の画面を呼び出す
+                view.getContext().startActivity(intent);
+            }
+        };
+        messageRecordHolder.image.setOnClickListener(clickListener);
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return mDataList.size();
     }
 
 
@@ -91,30 +131,4 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
 //        //1つのセルのViewを返します。
 //        return convertView;
 //    }
-
-    //データをセットしなおす関数
-    public void setMessageRecords(List<MessageRecord> dataList) {
-        mDataList = dataList;
-    }
-
-    @Override
-    public MessageRecordHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_item, viewGroup, false);
-        return new MessageRecordHolder(mContext, v);
-    }
-
-    @Override
-    public void onBindViewHolder(MessageRecordHolder messageRecordHolder, int position) {
-        MessageRecord m = mDataList.get(position);
-        messageRecordHolder.card.setCardBackgroundColor(m.getIntValue());
-        messageRecordHolder.image.setImageUrl(m.getImageUrl(), mImageLoader);
-        messageRecordHolder.titleText.setText(m.getTitle());
-        messageRecordHolder.content1Text.setText(m.getContent1());
-        messageRecordHolder.content2Text.setText(m.getContent2());
-    }
-
-    @Override
-    public int getItemCount() {
-        return mDataList.size();
-    }
 }

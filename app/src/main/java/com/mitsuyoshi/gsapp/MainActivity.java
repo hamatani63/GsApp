@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //アダプターを作成します。newでクラスをインスタンス化しています。
-        mAdapter = new MessageRecordsAdapter(this);
+        mAdapter = new MessageRecordsAdapter();
         mAdapter.setMessageRecords(mMessageRecords);
 
         //RecyclerViewのViewを取得
@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     private void fetch() {
         //jsonデータをサーバーから取得する通信機能です。Volleyの機能です。通信クラスのインスタンスを作成しているだけです。通信はまだしていません。
         JsonObjectRequest request = new JsonObjectRequest(
-                //"https://dl.dropboxusercontent.com/u/29477693/myJson02.txt" ,//jsonデータが有るサーバーのURLを指定します。
                 "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=e8c791dd3c21d317&format=json&keyword=%E5%BE%A1%E8%8C%B6%E3%83%8E%E6%B0%B4" ,
                 null,
                 //サーバー通信した結果、成功した時の処理をするクラスを作成しています。
@@ -95,22 +94,21 @@ public class MainActivity extends AppCompatActivity {
         //空のMessageRecordデータの配列を作成
         ArrayList<MessageRecord> records = new ArrayList<MessageRecord>();
         //jsonデータのmessagesにあるJson配列を取得します。
-//        JSONArray jsonMessages = json.getJSONArray("messages");
         JSONArray jsonMessages = json.getJSONObject("results").getJSONArray("shop");
         //配列の数だけ繰り返します。
         for (int i =0; i < jsonMessages.length(); i++) {
             //１つだけ取り出します。
             JSONObject jsonMessage = jsonMessages.getJSONObject(i);
             //jsonの値を取得します。
-//            String url = jsonMessage.getString("imageurl");
-//            String title = jsonMessage.getString("name");
-//            String content = jsonMessage.getString("genre");
             String url = jsonMessage.getJSONObject("photo").getJSONObject("mobile").getString("s");
             String title = jsonMessage.getString("name");
             String content1 = jsonMessage.getJSONObject("genre").getString("catch");
-            String content2 = jsonMessage.getJSONObject("urls").getString("pc");
+            String content2 = jsonMessage.getString("access");
+            String shopUrl = jsonMessage.getJSONObject("urls").getString("pc");
+            String shopAddressLng = jsonMessage.getString("lng");
+            String shopAddressLat = jsonMessage.getString("lat");
             //jsonMessageを新しく作ります。
-            MessageRecord record = new MessageRecord(url, title, content1, content2, i);
+            MessageRecord record = new MessageRecord(url, title, content1, content2, shopUrl, shopAddressLng, shopAddressLat, i);
             //MessageRecordの配列に追加します。
             records.add(record);
         }

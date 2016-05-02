@@ -7,15 +7,20 @@ public class MessageRecord {
     private String title;
     private String content1;
     private String content2;
-    private String content3;
+    private String shopUrl;
+    private String lng;
+    private String lat;
     private int intValue;
 
     //データを１つ作成する関数です。項目が増えたら増やしましょう。
-    public MessageRecord(String imageUrl, String title, String content1, String content2, int intValue) {
+    public MessageRecord(String imageUrl, String title, String content1, String content2, String shopUrl, String lng, String lat, int intValue) {
         this.imageUrl = imageUrl;
         this.title = title;
         this.content1 = content1;
         this.content2 = content2;
+        this.shopUrl = shopUrl;
+        this.lng = lng;
+        this.lat = lat;
         this.intValue = intValue;
     }
 
@@ -29,8 +34,17 @@ public class MessageRecord {
     public String getContent1(){
         return content1;
     }
-    public String getContent2(){
+    public String getContent2() {
         return content2;
+    }
+    public String getShopUrl(){
+        return shopUrl;
+    }
+    public String getLng(){
+        return lng;
+    }
+    public String getLat(){
+        return lat;
     }
     public int getIntValue(){
         return intValue;
