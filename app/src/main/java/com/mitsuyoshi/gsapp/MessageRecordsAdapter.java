@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 
@@ -44,7 +45,7 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
         messageRecordHolder.content2Text.setText(m.getContent2());
 
         //画像クリックでWebサイト表示
-        View.OnClickListener clickListener = new View.OnClickListener() {
+        View.OnClickListener webClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //WebView表示
@@ -55,8 +56,17 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
                 view.getContext().startActivity(intent);
             }
         };
-        messageRecordHolder.image.setOnClickListener(clickListener);
+        messageRecordHolder.image.setOnClickListener(webClickListener);
 
+        //ボタンクリックでToast
+        View.OnClickListener buttonClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast表示
+                Toast.makeText(view.getContext(), "Lng: " + m.getLng() + ", Lat: " + m.getLat() , Toast.LENGTH_SHORT).show();
+            }
+        };
+        messageRecordHolder.button.setOnClickListener(buttonClickListener);
     }
 
     @Override
