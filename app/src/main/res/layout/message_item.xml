@@ -25,22 +25,34 @@
         <TextView
             android:id="@+id/title"
             android:text="title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/image"
             android:layout_toRightOf="@+id/image"
-            android:textSize="18dp"
+            android:layout_marginTop="6dp"
+            android:textSize="14dp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/content"
-            android:text="content"
-            android:layout_width="fill_parent"
+            android:id="@+id/shopCatch"
+            android:text="shopCatch"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
+            android:layout_marginTop="3dp"
+            android:layout_toRightOf="@+id/image"
+            android:textSize="12dp" />
+
+        <TextView
+            android:id="@+id/shopWebsite"
+            android:text="shopWebsite"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/shopCatch"
             android:layout_marginTop="2dp"
             android:layout_toRightOf="@+id/image"
-            android:textSize="14dp" />
+            android:textSize="10dp"
+            android:background="?android:attr/selectableItemBackground"/>
 
     </RelativeLayout>
 

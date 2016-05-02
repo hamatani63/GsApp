@@ -42,7 +42,7 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
 //        //TextView に LinkMovementMethod を登録します
 //        //TextViewをタップした時のイベントリスナー（タップの状況を監視するクラス）を登録します。onTouchにタップした時の処理を記述します。buttonやほかのViewも同じように記述できます。
 //        textView1.setOnTouchListener(new ViewGroup.OnTouchListener() {
-//            //タップした時の処理aaa
+//            //タップした時の処理
 //            @Override
 //            public boolean onTouch(final View view, MotionEvent event) {
 //                //タップしたのはTextViewなのでキャスト（型の変換）する
@@ -109,7 +109,8 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
         messageRecordHolder.card.setCardBackgroundColor(m.getIntValue());
         messageRecordHolder.image.setImageUrl(m.getImageUrl(), mImageLoader);
         messageRecordHolder.titleText.setText(m.getTitle());
-        messageRecordHolder.contentText.setText(m.getContent());
+        messageRecordHolder.content1Text.setText(m.getContent1());
+        messageRecordHolder.content2Text.setText(m.getContent2());
     }
 
     @Override
