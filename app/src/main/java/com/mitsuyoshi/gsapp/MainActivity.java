@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     //アダプタークラスです。
     private MessageRecordsAdapter mAdapter;
-    //private ArrayList<MessageRecord> mDataset;
     private List<MessageRecord> mMessageRecords = new ArrayList<MessageRecord>();
 
     //起動時にOSから実行される関数です。
@@ -36,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
         //メイン画面のレイアウトをセットしています。
         setContentView(R.layout.activity_main);
 
-        //アダプターを作成します。newでクラスをインスタンス化しています。
         mAdapter = new MessageRecordsAdapter();
         mAdapter.setMessageRecords(mMessageRecords);
 
@@ -105,8 +103,8 @@ public class MainActivity extends AppCompatActivity {
             String content1 = jsonMessage.getJSONObject("genre").getString("catch");
             String content2 = jsonMessage.getString("access");
             String shopUrl = jsonMessage.getJSONObject("urls").getString("pc");
-            String shopAddressLng = jsonMessage.getString("lng");
-            String shopAddressLat = jsonMessage.getString("lat");
+            Double shopAddressLng = Double.valueOf(jsonMessage.getString("lng"));
+            Double shopAddressLat = Double.valueOf(jsonMessage.getString("lat"));
             //jsonMessageを新しく作ります。
             MessageRecord record = new MessageRecord(url, title, content1, content2, shopUrl, shopAddressLng, shopAddressLat, i);
             //MessageRecordの配列に追加します。

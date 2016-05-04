@@ -1,23 +1,19 @@
 //ListViewに１つのセルの情報(message_item.xmlとMessageRecord)を結びつけるためのクラス
 package com.mitsuyoshi.gsapp;
 
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 
 import java.util.List;
 
-//<MessageRecord>はデータクラスMessageRecordのArrayAdapterであることを示している。このアダプターで管理したいデータクラスを記述されば良い。
 public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHolder> {
     private ImageLoader mImageLoader;
     private List<MessageRecord> mDataList;
 
-    //アダプターを作成する関数。コンストラクター。クラス名と同じです。
     public MessageRecordsAdapter(){
         //キャッシュメモリを確保して画像を取得するクラスを作成。これを使って画像をダウンロードする。Volleyの機能
         mImageLoader = new ImageLoader(VolleyApplication.getInstance().getRequestQueue(), new BitmapLruCache());
@@ -31,41 +27,20 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
     @Override
     public MessageRecordHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_item, viewGroup, false);
-        return new MessageRecordHolder(v);
+        return new MessageRecordHolder(viewGroup.getContext(), v);
     }
 
     @Override
     public void onBindViewHolder(MessageRecordHolder messageRecordHolder, int position) {
-        final MessageRecord m = mDataList.get(position);
+        MessageRecord m = mDataList.get(position);
         messageRecordHolder.card.setCardBackgroundColor(m.getIntValue());
         messageRecordHolder.image.setImageUrl(m.getImageUrl(), mImageLoader);
         messageRecordHolder.titleText.setText(m.getTitle());
         messageRecordHolder.content1Text.setText(m.getContent1());
         messageRecordHolder.content2Text.setText(m.getContent2());
 
-        //画像クリックでWebサイト表示
-        View.OnClickListener webClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //WebView表示
-                Intent intent = new Intent(view.getContext(), WebActivity.class);
-                // 渡したいデータとキーを指定する。urlという名前でリンクの文字列を渡しています。
-                intent.putExtra("url", m.getShopUrl());
-                // 遷移先の画面を呼び出す
-                view.getContext().startActivity(intent);
-            }
-        };
-        messageRecordHolder.image.setOnClickListener(webClickListener);
-
-        //ボタンクリックでToast
-        View.OnClickListener buttonClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Toast表示
-                Toast.makeText(view.getContext(), "Lng: " + m.getLng() + ", Lat: " + m.getLat() , Toast.LENGTH_SHORT).show();
-            }
-        };
-        messageRecordHolder.button.setOnClickListener(buttonClickListener);
+        messageRecordHolder.setShopUrl(m.getShopUrl());
+        messageRecordHolder.setMapLocation(m.getTitle(), m.getLat(), m.getLng());
     }
 
     @Override

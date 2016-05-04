@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-
 public class WebActivity extends ActionBarActivity {
 
     @Override
