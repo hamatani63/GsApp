@@ -31,16 +31,18 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
     }
 
     @Override
-    public void onBindViewHolder(MessageRecordHolder messageRecordHolder, int position) {
+    public void onBindViewHolder(MessageRecordHolder holder, int position) {
         MessageRecord m = mDataList.get(position);
-        messageRecordHolder.card.setCardBackgroundColor(m.getIntValue());
-        messageRecordHolder.image.setImageUrl(m.getImageUrl(), mImageLoader);
-        messageRecordHolder.titleText.setText(m.getTitle());
-        messageRecordHolder.content1Text.setText(m.getContent1());
-        messageRecordHolder.content2Text.setText(m.getContent2());
+        holder.card.setCardBackgroundColor(m.getIntValue());
+        holder.image.setImageUrl(m.getImageUrl(), mImageLoader);
+        holder.titleText.setText(m.getTitle());
+        holder.content1Text.setText(m.getContent1());
+        holder.content2Text.setText(m.getContent2());
 
-        messageRecordHolder.setShopUrl(m.getShopUrl());
-        messageRecordHolder.setMapLocation(m.getTitle(), m.getLat(), m.getLng());
+        holder.setShopUrl(m.getShopUrl());
+        holder.setMapLocation(m.getTitle(), m.getLat(), m.getLng());
+//        holder.setIsViewExpanded(mIsExpanded);
+//        mIsExpanded = holder.getIsViewExpanded();
     }
 
     @Override
