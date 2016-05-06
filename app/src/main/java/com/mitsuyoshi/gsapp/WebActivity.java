@@ -2,25 +2,23 @@
 package com.mitsuyoshi.gsapp;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class WebActivity extends ActionBarActivity {
+public class WebActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //レイアウトをセットします
         setContentView(R.layout.activity_web);
 
         //Intent を取得: Intentでアクティビティー間のデータを受け渡しします。Intentの値を受け取るために作成。
         Intent intent = getIntent();
-        //キーを元にインテントデータを取得する
         String url  = intent.getStringExtra("url");
 
         //WebViewを探す

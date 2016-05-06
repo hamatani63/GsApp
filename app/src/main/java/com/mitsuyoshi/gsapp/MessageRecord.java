@@ -11,6 +11,7 @@ public class MessageRecord {
     private Double lng;
     private Double lat;
     private int intValue;
+    private Boolean mExpanded = false;
 
     //データを１つ作成する関数です。項目が増えたら増やしましょう。
     public MessageRecord(String imageUrl, String title, String content1, String content2, String shopUrl, Double lng, Double lat, int intValue) {
@@ -48,5 +49,11 @@ public class MessageRecord {
     }
     public int getIntValue(){
         return intValue;
+    }
+    public void setExpanded(Boolean expanded){
+        mExpanded = expanded;
+    }
+    public Boolean getExpanded(){
+        return mExpanded;
     }
 }

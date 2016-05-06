@@ -1,10 +1,14 @@
 //ListViewに１つのセルの情報(message_item.xmlとMessageRecord)を結びつけるためのクラス
 package com.mitsuyoshi.gsapp;
 
+import android.animation.ValueAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 
 import com.android.volley.toolbox.ImageLoader;
 
@@ -27,22 +31,24 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
     @Override
     public MessageRecordHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_item, viewGroup, false);
-        return new MessageRecordHolder(viewGroup.getContext(), v);
+        MessageRecordHolder holder = new MessageRecordHolder(viewGroup.getContext(), v);
+        return holder;
     }
 
     @Override
     public void onBindViewHolder(MessageRecordHolder holder, int position) {
         MessageRecord m = mDataList.get(position);
+
         holder.card.setCardBackgroundColor(m.getIntValue());
         holder.image.setImageUrl(m.getImageUrl(), mImageLoader);
         holder.titleText.setText(m.getTitle());
         holder.content1Text.setText(m.getContent1());
         holder.content2Text.setText(m.getContent2());
-
+        //for clickListener
         holder.setShopUrl(m.getShopUrl());
         holder.setMapLocation(m.getTitle(), m.getLat(), m.getLng());
-//        holder.setIsViewExpanded(mIsExpanded);
-//        mIsExpanded = holder.getIsViewExpanded();
+        //for view expansion
+//        holder.setIsViewExpanded(mMessageRecord.getExpanded());
     }
 
     @Override

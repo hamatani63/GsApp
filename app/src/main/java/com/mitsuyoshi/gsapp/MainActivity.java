@@ -98,15 +98,20 @@ public class MainActivity extends AppCompatActivity {
             //１つだけ取り出します。
             JSONObject jsonMessage = jsonMessages.getJSONObject(i);
             //jsonの値を取得します。
-            String url = jsonMessage.getJSONObject("photo").getJSONObject("mobile").getString("s");
+            String url = jsonMessage.getJSONObject("photo").getJSONObject("mobile").getString("l");
             String title = jsonMessage.getString("name");
             String content1 = jsonMessage.getJSONObject("genre").getString("catch");
-            String content2 = jsonMessage.getString("access");
+//            String content2 = jsonMessage.getString("access"); //アクセス
+//            String content2 = jsonMessage.getString("open"); //営業時間
+            String content2 = jsonMessage.getJSONObject("budget").getString("average"); //予算
+            if(content2.equals("")){
+                content2 = "(記載なし)";
+            }
             String shopUrl = jsonMessage.getJSONObject("urls").getString("pc");
             Double shopAddressLng = Double.valueOf(jsonMessage.getString("lng"));
             Double shopAddressLat = Double.valueOf(jsonMessage.getString("lat"));
             //jsonMessageを新しく作ります。
-            MessageRecord record = new MessageRecord(url, title, content1, content2, shopUrl, shopAddressLng, shopAddressLat, i);
+            MessageRecord record = new MessageRecord(url, title, content1, "予算：" + content2, shopUrl, shopAddressLng, shopAddressLat, i);
             //MessageRecordの配列に追加します。
             records.add(record);
         }

@@ -43,7 +43,7 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder implements OnMa
     private Double mLng;
     //Animation
     private int mMapViewHeight = 600;
-    private boolean mIsViewExpanded = false;
+    private boolean mIsViewExpanded;
 
     public MessageRecordHolder(Context context, View itemView) {
         super(itemView);
@@ -51,21 +51,25 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder implements OnMa
         image = (NetworkImageView) itemView.findViewById(R.id.image);
         titleText = (TextView) itemView.findViewById(R.id.title);
         content1Text = (TextView) itemView.findViewById(R.id.shopCatch);
-        content2Text = (TextView) itemView.findViewById(R.id.shopWebsite);
+        content2Text = (TextView) itemView.findViewById(R.id.shopContent2);
         button = (Button) itemView.findViewById(R.id.mapButton);
         mapView = (MapView) itemView.findViewById(R.id.map);
 
         //リスナー実装
         image.setOnClickListener(clickListener);
+        titleText.setOnClickListener(clickListener);
+        content1Text.setOnClickListener(clickListener);
         button.setOnClickListener(buttonClickListener);
 
         //Map
         mContext = context;
         mapView.onCreate(null);
-        //mapView.setVisibility(View.VISIBLE);
-        mapView.getLayoutParams().height = 0;
-        //mapView.setEnabled(mIsViewExpanded);
         mapView.getMapAsync(this);
+        //Animation
+        mIsViewExpanded = false;
+        mapView.getLayoutParams().height = 0;
+        mapView.setVisibility(View.GONE);
+        mapView.setEnabled(mIsViewExpanded);
     }
 
     public void setShopUrl(String url){
@@ -92,42 +96,57 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder implements OnMa
         }
     }
 
+    private GoogleMap.OnMapClickListener googleMapClickListener = new GoogleMap.OnMapClickListener() {
+        @Override
+        public void onMapClick(LatLng latLng) {
+//            Toast.makeText(mContext, "Lng: " + mLng + ", Lat: " + mLat, Toast.LENGTH_SHORT).show();
+            //別画面でMapView表示
+            Intent intent = new Intent(mContext, MapActivity.class);
+            intent.putExtra("name", mName);
+            intent.putExtra("lat", mLat);
+            intent.putExtra("lng", mLng);
+            mContext.startActivity(intent);
+        }
+    };
+
+    public void setIsViewExpanded(Boolean isViewExpanded){
+        mIsViewExpanded = isViewExpanded;
+    }
+
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View view) {
-            //Toast表示
-            //Toast.makeText(view.getContext(), "Lng: " + mLng + ", Lat: " + mLat, Toast.LENGTH_SHORT).show();
             //MapView表示
             // Declare a ValueAnimator object
             ValueAnimator valueAnimator;
 
             if (!mIsViewExpanded) {
-                //mapView.setVisibility(View.VISIBLE);
-                //mapView.setEnabled(true);
                 mIsViewExpanded = true;
                 valueAnimator = ValueAnimator.ofInt(0, mMapViewHeight);
+                mapView.setVisibility(View.VISIBLE);
+                mapView.setEnabled(mIsViewExpanded);
             } else {
                 mIsViewExpanded = false;
                 valueAnimator = ValueAnimator.ofInt(mMapViewHeight, 0);
 
-//                Animation a = new AlphaAnimation(1.00f, 0.00f); // Fade out
-//                a.setDuration(200);
-//                // Set a listener to the animation and configure onAnimationEnd
-//                a.setAnimationListener(new Animation.AnimationListener() {
-//                    @Override
-//                    public void onAnimationStart(Animation animation) {
-//                    }
-//                    @Override
-//                    public void onAnimationEnd(Animation animation) {
-//                        //mapView.setVisibility(View.INVISIBLE);
-//                        //mapView.setEnabled(false);
-//                    }
-//                    @Override
-//                    public void onAnimationRepeat(Animation animation) {
-//                    }
-//                });
-//                // Set the animation on the custom view
-//                mapView.startAnimation(a);
+                Animation a = new AlphaAnimation(1.00f, 0.00f); // Fade out
+                a.setDuration(200);
+                // Set a listener to the animation and configure onAnimationEnd
+                a.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        mapView.setVisibility(View.GONE);
+                        mapView.setEnabled(mIsViewExpanded);
+                    }
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+                // Set the animation on the custom view
+                mapView.startAnimation(a);
             }
             valueAnimator.setDuration(200);
             valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -138,7 +157,6 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder implements OnMa
                     mapView.requestLayout();
                 }
             });
-
             valueAnimator.start();
         }
     };
@@ -146,25 +164,24 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder implements OnMa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-
         MapsInitializer.initialize(mContext);
         googleMap.getUiSettings().setMapToolbarEnabled(false);
-
         // If we have map data, update the map content.
         if (mLat != null && mLng != null) {
             updateMapContents();
         }
+        //リスナー設定すると、GoogleMapのLiteモードのonClickイベントがoverrideされる
+        //これにより、勝手に純正アプリへ遷移するのを防ぐことができる。
+        mGoogleMap.setOnMapClickListener(googleMapClickListener);
     }
 
     protected void updateMapContents() {
         // Since the mapView is re-used, need to remove pre-existing mapView features.
         mGoogleMap.clear();
-
         LatLng location = new LatLng(mLat, mLng);
         // Update the mapView feature data and camera position.
         mGoogleMap.addMarker(new MarkerOptions().position(location).title(mName));
-
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(location, 15);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(location, 15f);
         mGoogleMap.moveCamera(cameraUpdate);
     }
 
