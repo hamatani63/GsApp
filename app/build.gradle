@@ -19,6 +19,12 @@ android {
     }
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
@@ -27,4 +33,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile project(':modules:volley')
     compile 'com.google.android.gms:play-services:8.4.0'
+    compile 'com.example.library:android-cloud-sdk-v2.4.6@aar'
+    compile 'com.squareup.okhttp:okhttp:2.7.2'
+    compile 'com.squareup.okhttp:okhttp-apache:2.7.2'
 }

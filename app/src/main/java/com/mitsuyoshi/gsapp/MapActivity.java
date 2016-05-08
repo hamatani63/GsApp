@@ -79,7 +79,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         double lat = getIntent().getDoubleExtra(EXTRA_LATITUDE, 0);
         double lng = getIntent().getDoubleExtra(EXTRA_LONGITUDE, 0);
 
-        map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)));
+        map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(name));
 
         LatLng location = new LatLng(lat, lng);
         map.addMarker(new MarkerOptions().position(location).title(name));

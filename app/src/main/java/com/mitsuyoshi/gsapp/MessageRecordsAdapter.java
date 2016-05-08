@@ -3,6 +3,7 @@ package com.mitsuyoshi.gsapp;
 
 import android.animation.ValueAnimator;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
     @Override
     public void onBindViewHolder(MessageRecordHolder holder, int position) {
         MessageRecord m = mDataList.get(position);
+        Log.d("TAG", "position is " + position);
 
         holder.card.setCardBackgroundColor(m.getIntValue());
         holder.image.setImageUrl(m.getImageUrl(), mImageLoader);

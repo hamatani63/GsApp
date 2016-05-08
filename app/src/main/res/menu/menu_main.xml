@@ -3,6 +3,12 @@
     xmlns:gsapp="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
+
+    <!-- Userで追加ここから-->
+    <item android:id="@+id/log_out"
+        android:title="Log Out" />
+    <!-- Userで追加ここまで-->
+
     <item
         android:id="@+id/action_settings"
         android:icon="@android:drawable/ic_menu_preferences"

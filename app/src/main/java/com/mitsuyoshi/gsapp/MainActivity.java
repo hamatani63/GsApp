@@ -2,6 +2,9 @@
 //どのアクティビティーが起動時に実行されるのかはAndroidManifestに記述されています。
 package com.mitsuyoshi.gsapp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.kii.cloud.storage.KiiUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +36,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //ログインしていない時はログイン画面を表示する
+        //KiiCloudでのログイン状態を取得します。nullの時はログインしていない。
+        KiiUser user = KiiUser.getCurrentUser();
+        //自動ログインのため保存されているaccess tokenを読み出す。tokenがあればログインできる
+        SharedPreferences pref = getSharedPreferences(getString(R.string.save_data_name), Context.MODE_PRIVATE);
+        String token = pref.getString(getString(R.string.save_token), "");//保存されていない時は""
+        //ログインしていない時はログインのactivityに遷移.SharedPreferencesが空の時もチェックしないとLogOutできない。
+        if(user == null || token == "") {
+            // Intent のインスタンスを取得する。getApplicationContext()でViewの自分のアクティビティーのコンテキストを取得。遷移先のアクティビティーを.classで指定
+            Intent intent = new Intent(getApplicationContext(), UserActivity.class);
+            // 遷移先の画面を呼び出す
+            startActivity(intent);
+            //ログインできてない時はMainActivityに戻れないように、MainActivityを終了します。
+            finish();
+        }
+
         //メイン画面のレイアウトをセットしています。
         setContentView(R.layout.activity_main);
 
@@ -136,6 +157,21 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        //ログアウト処理.KiiCloudにはログアウト機能はないのでAccesTokenを削除して対応。
+        if (id == R.id.log_out) {
+            //自動ログインのため保存されているaccess tokenを消す。
+            SharedPreferences pref = getSharedPreferences(getString(R.string.save_data_name), Context.MODE_PRIVATE);
+            pref.edit().clear().apply();
+            //ログイン画面に遷移
+            // Intent のインスタンスを取得する。getApplicationContext()でViewの自分のアクティビティーのコンテキストを取得。遷移先のアクティビティーを.classで指定
+            Intent intent = new Intent(getApplicationContext(), UserActivity.class);
+            // 遷移先の画面を呼び出す
+            startActivity(intent);
+            //戻れないようにActivityを終了します。
+            finish();
             return true;
         }
 
