@@ -16,13 +16,26 @@
 
 package com.mitsuyoshi.gsapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,27 +43,50 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+import org.w3c.dom.Document;
+
+import java.util.ArrayList;
+
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, ConnectionCallbacks, OnConnectionFailedListener {
     public static final String EXTRA_NAME = "name";
     public static final String EXTRA_LATITUDE = "lat";
     public static final String EXTRA_LONGITUDE = "lng";
+    private GoogleMap mMap;
+    private GoogleApiClient mGoogleApiClient;
+    private LatLng shopLocation;
+
+    private Location mLastLocation;
+    private LatLng currentLocation;
+    // Request code to use when launching the resolution activity
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
+    // Unique tag for the error dialog fragment
+    private static final String DIALOG_ERROR = "dialog_error";
+    // Bool to track whether the app is already resolving an error
+    private boolean mResolvingError = false;
+
+    private PolylineOptions mRectLine = new PolylineOptions().geodesic(true).width(12).color(Color.RED);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -74,16 +110,113 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public void onMapReady(GoogleMap map) {
-        //Intent を取得: Intentでアクティビティー間のデータを受け渡しします。Intentの値を受け取るために作成。
+        mMap = map;
+        //Shop location
         String name = getIntent().getStringExtra(EXTRA_NAME);
         double lat = getIntent().getDoubleExtra(EXTRA_LATITUDE, 0);
         double lng = getIntent().getDoubleExtra(EXTRA_LONGITUDE, 0);
-
-        map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(name));
-
-        LatLng location = new LatLng(lat, lng);
-        map.addMarker(new MarkerOptions().position(location).title(name));
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(location, 16f);
+        shopLocation = new LatLng(lat, lng);
+        mMap.addMarker(new MarkerOptions().position(shopLocation).title(name)).showInfoWindow();
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(shopLocation, 16f);
         map.moveCamera(cameraUpdate);
+    }
+
+
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        //Current location
+        final int REQUEST_CODE_LOCATION = 2;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Check Permissions Now
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Display UI and wait for user interaction
+            } else {
+                ActivityCompat.requestPermissions(
+                        this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_CODE_LOCATION);
+            }
+        } else {
+            mMap.setMyLocationEnabled(true);
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            Log.d("Google Maps", "LatLng is " + mLastLocation);
+            mMap.addMarker(new MarkerOptions().position(currentLocation).title("You"));
+
+            taskExe();
+
+            if (mRectLine != null){
+                mMap.addPolyline(mRectLine);
+
+            }
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(shopLocation, 16f);
+            mMap.moveCamera(cameraUpdate);
+        }
+    }
+
+    private void taskExe(){
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (currentLocation != null | shopLocation != null){
+                    GMapV2Direction md = new GMapV2Direction();
+                    Document doc = md.getDocument(currentLocation, shopLocation, GMapV2Direction.MODE_WALKING);
+                    Log.d("TAG", "doc is " + doc);
+                    ArrayList<LatLng> directionPoint = md.getDirection(doc);
+                    Log.d("TAG", "directionPoint is " + directionPoint);
+                    for (int i = 0; i < directionPoint.size(); i++) {
+                        mRectLine.add(directionPoint.get(i));
+                        Log.d("TAG", "mRectLine" + directionPoint.get(i));
+                    }
+                }
+                return null;
+            }
+        };
+        task.execute();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // An unresolvable error has occurred and a connection to Google APIs
+        // could not be established. Display an error message, or handle
+        // the failure silently
+        if (mResolvingError) {
+            // Already attempting to resolve an error.
+            return;
+        } else if (result.hasResolution()) {
+            try {
+                mResolvingError = true;
+                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                mGoogleApiClient.connect();
+            }
+        } else {
+            // Show dialog using GooglePlayServicesUtil.getErrorDialog()
+            //showErrorDialog(result.getErrorCode());
+            mResolvingError = true;
+        }
     }
 }
