@@ -49,6 +49,8 @@ import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 
+import javax.xml.transform.Result;
+
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, ConnectionCallbacks, OnConnectionFailedListener {
     public static final String EXTRA_NAME = "name";
     public static final String EXTRA_LATITUDE = "lat";
@@ -66,7 +68,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // Bool to track whether the app is already resolving an error
     private boolean mResolvingError = false;
 
-    private PolylineOptions mRectLine = new PolylineOptions().geodesic(true).width(12).color(Color.RED);
 
 
     @Override
@@ -142,7 +143,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Check Permissions Now
-
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // Display UI and wait for user interaction
@@ -152,40 +152,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         REQUEST_CODE_LOCATION);
             }
         } else {
+            //現在値表示
             mMap.setMyLocationEnabled(true);
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             Log.d("Google Maps", "LatLng is " + mLastLocation);
             mMap.addMarker(new MarkerOptions().position(currentLocation).title("You"));
-
-            taskExe();
-
-            if (mRectLine != null){
-                mMap.addPolyline(mRectLine);
-
-            }
-
+            //ルート表示
+            addRoute(currentLocation, shopLocation, mMap);
+            //地図更新
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(shopLocation, 16f);
             mMap.moveCamera(cameraUpdate);
         }
     }
 
-    private void taskExe(){
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+    private void addRoute(final LatLng fromLatLng, final LatLng toLatLng, GoogleMap map){
+        final GoogleMap googleMap = map;
+        AsyncTask<Void, Void, Result> task = new AsyncTask<Void, Void, Result>() {
+            private PolylineOptions rectLine = new PolylineOptions().geodesic(true).width(12).color(Color.RED);
             @Override
-            protected Void doInBackground(Void... params) {
-                if (currentLocation != null | shopLocation != null){
+            protected Result doInBackground(Void... params) {//通信中に適当なタイミングで呼ばれる
+                if (fromLatLng != null | toLatLng != null){
                     GMapV2Direction md = new GMapV2Direction();
-                    Document doc = md.getDocument(currentLocation, shopLocation, GMapV2Direction.MODE_WALKING);
-                    Log.d("TAG", "doc is " + doc);
+                    Document doc = md.getDocument(fromLatLng, toLatLng, GMapV2Direction.MODE_WALKING);
+                    //Log.d("TAG", "doc is " + doc);
                     ArrayList<LatLng> directionPoint = md.getDirection(doc);
-                    Log.d("TAG", "directionPoint is " + directionPoint);
+                    //Log.d("TAG", "directionPoint is " + directionPoint);
                     for (int i = 0; i < directionPoint.size(); i++) {
-                        mRectLine.add(directionPoint.get(i));
-                        Log.d("TAG", "mRectLine" + directionPoint.get(i));
+                        rectLine.add(directionPoint.get(i));
+                        //Log.d("TAG", "mRectLine" + directionPoint.get(i));
                     }
                 }
                 return null;
+            }
+            @Override
+            protected void onPostExecute(Result result){
+                //Log.d("TAG", "onPostExecute");
+                if(rectLine != null){
+                    googleMap.addPolyline(rectLine);
+                }
             }
         };
         task.execute();
