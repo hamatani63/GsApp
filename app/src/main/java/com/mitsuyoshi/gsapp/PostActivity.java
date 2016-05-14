@@ -2,6 +2,7 @@
 package com.mitsuyoshi.gsapp;
 
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -34,7 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 
-public class PostActivity extends ActionBarActivity {
+public class PostActivity extends ActionBarActivity{
     //今回使用するインテントの結果の番号。適当な値でOK.
     private static final int IMAGE_CHOOSER_RESULTCODE = 1;
     //画像のパスを保存しておく
@@ -45,6 +46,7 @@ public class PostActivity extends ActionBarActivity {
     private String comment;
     //カメラで撮影した画像のuri
     private Uri mImageUri;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -273,6 +275,7 @@ public class PostActivity extends ActionBarActivity {
             }
         });
     }
+
     //画像をKiiCloudのimagesにUPする。参考：チュートリアル、http://www.riaxdnp.jp/?p=6775
     private void uploadFile(String path) {
         //イメージを保存するバケット名を設定。すべてここに保存してmessageにはそのhttpパスを設定する。
@@ -286,11 +289,32 @@ public class PostActivity extends ActionBarActivity {
         //KiiCloudにアップロードする
         //まずインスタンスを生成
         KiiUploader uploader = object.uploader(this, f);
+        //プログレスダイアログのインスタンスも生成
+        mProgressDialog = new ProgressDialog(this);
         //非同期でUpする。
-        uploader.transferAsync(new KiiRTransferCallback() { //Kiiの転送完了のコールバックを待つ
+        uploader.transferAsync (new KiiRTransferCallback() { //Kiiの転送完了のコールバックを待つ
+            @Override
+            public void onStart(KiiRTransfer operator) {
+//                mProgressDialog.setTitle("タイトル");
+                mProgressDialog.setMessage("画像アップロード中...");
+//                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL); //プログレスバー
+//                mProgressDialog.setMax(100);
+//                mProgressDialog.setCancelable(false); // プログレスダイアログのキャンセルが可能かどうかを設定
+            }
+
+            @Override
+            public void onProgress(KiiRTransfer operator, long completedInBytes, long totalSizeInBytes) {
+                //プログレスバー表示更新
+                //float progress = (float) completedInBytes / (float) totalSizeInBytes * 100.0f;
+                //mProgressDialog.incrementProgressBy((int) progress);
+            }
+
             //完了した時
             @Override
             public void onTransferCompleted(KiiRTransfer operator, Exception e) {
+                //プログレスダイアログの消去
+                mProgressDialog.dismiss();
+
                 if (e == null) {
                     //成功の時
                     //画像を一覧で表示するため、公開状態にする。参考：http://www.riaxdnp.jp/?p=6841
@@ -302,7 +326,7 @@ public class PostActivity extends ActionBarActivity {
                                 object.publishBody(new KiiObjectPublishCallback() {
                                     @Override
                                     public void onPublishCompleted(String url, KiiObject kiiObject, Exception e) {
-                                        Log.d("mogiurl", url);
+                                        Log.d("KiiCloud_imageUrl", url);
                                         //画像のURL付きでmessagesに投稿する。messagesバケットに書き込む
                                         postMessages(url);
                                     }
@@ -310,20 +334,31 @@ public class PostActivity extends ActionBarActivity {
                             }
                         }
                     });
-
-
                 } else {
                     //失敗の時
                     Throwable cause = e.getCause();
                     if (cause instanceof CloudExecutionException)
-                        showAlert(Util
-                                .generateAlertMessage((CloudExecutionException) cause));
+                        showAlert(Util.generateAlertMessage((CloudExecutionException) cause));
                     else
                         showAlert(e.getLocalizedMessage());
                 }
             }
         });
+        //プログレスダイアログの表示
+        mProgressDialog.show();
+
     }
+//    @Override
+//    public void run(){
+//        try{
+//            thread.sleep()
+//        } catch (InterruptedException e){
+//            e.printStackTrace();
+//        }
+//        progressDialog.dismiss();
+//        handler.sendemptyMessage(0);
+//    }
+
     //エラーダイアログを表示する
     void showAlert(String message) {
         DialogFragment newFragment = AlertDialogFragment.newInstance(R.string.operation_failed, message, null);
