@@ -55,16 +55,13 @@ public class MainActivity extends AppCompatActivity {
 
         //メイン画面のレイアウトをセットしています。
         setContentView(R.layout.activity_main);
-
         mAdapter = new MessageRecordsAdapter();
         mAdapter.setMessageRecords(mMessageRecords);
-
         //RecyclerViewのViewを取得
         RecyclerView rv = (RecyclerView) findViewById(R.id.mylist);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         rv.setLayoutManager(llm);
-
         //RecyclerViewにアダプターをセット。
         rv.setAdapter(mAdapter);
         //一覧のデータを作成して表示します。

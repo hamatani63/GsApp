@@ -155,11 +155,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             //現在値表示
             mMap.setMyLocationEnabled(true);
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            Log.d("Google Maps", "LatLng is " + mLastLocation);
-            mMap.addMarker(new MarkerOptions().position(currentLocation).title("You"));
-            //ルート表示
-            addRoute(currentLocation, shopLocation, mMap);
+            if(mLastLocation != null){
+                currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                Log.d("Google Maps", "LatLng is " + mLastLocation);
+                mMap.addMarker(new MarkerOptions().position(currentLocation).title("You"));
+                //ルート表示
+                addRoute(currentLocation, shopLocation, mMap);
+            }
             //地図更新
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(shopLocation, 16f);
             mMap.moveCamera(cameraUpdate);
