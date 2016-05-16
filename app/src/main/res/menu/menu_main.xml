@@ -4,6 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
+    <item
+        android:id="@+id/search"
+        android:title="@string/search_title"
+        android:orderInCategory="0"
+        gsapp:showAsAction="always"
+        android:actionLayout="@layout/layout_search"
+        gsapp:actionViewClass="android.support.v7.widget.SearchView"
+        />
+
     <!-- Userで追加ここから-->
     <item
         android:id="@+id/log_out"
@@ -19,8 +28,8 @@
     <item
         android:id="@+id/action_settings"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:orderInCategory="10"
+        android:orderInCategory="1"
         android:title="@string/action_settings"
-        gsapp:showAsAction="always"
+        gsapp:showAsAction="ifRoom"
         />
 </menu>

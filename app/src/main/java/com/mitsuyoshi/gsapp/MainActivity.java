@@ -2,6 +2,9 @@
 //どのアクティビティーが起動時に実行されるのかはAndroidManifestに記述されています。
 package com.mitsuyoshi.gsapp;
 
+import android.app.ActionBar;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +12,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -26,11 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     //アダプタークラスです。
     private MessageRecordsAdapter mAdapter;
     private List<MessageRecord> mMessageRecords = new ArrayList<MessageRecord>();
+    private String mSearchText;
 
     //起動時にOSから実行される関数です。
     @Override
@@ -55,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
         //メイン画面のレイアウトをセットしています。
         setContentView(R.layout.activity_main);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         mAdapter = new MessageRecordsAdapter();
         mAdapter.setMessageRecords(mMessageRecords);
         //RecyclerViewのViewを取得
@@ -65,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         //RecyclerViewにアダプターをセット。
         rv.setAdapter(mAdapter);
         //一覧のデータを作成して表示します。
+        mSearchText = "御茶ノ水";
         fetch();
     }
 
@@ -72,7 +81,10 @@ public class MainActivity extends AppCompatActivity {
     private void fetch() {
         //jsonデータをサーバーから取得する通信機能です。Volleyの機能です。通信クラスのインスタンスを作成しているだけです。通信はまだしていません。
         JsonObjectRequest request = new JsonObjectRequest(
-                "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=e8c791dd3c21d317&format=json&keyword=%E5%BE%A1%E8%8C%B6%E3%83%8E%E6%B0%B4" ,
+                "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/" +
+                        "?key=e8c791dd3c21d317" +
+                        "&format=json" +
+                        "&keyword=" + mSearchText ,
                 null,
                 //サーバー通信した結果、成功した時の処理をするクラスを作成しています。
                 new Response.Listener<JSONObject>() {
@@ -142,6 +154,18 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();;
+        Log.d("TAG", "searchView is " + searchView);
+
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(this);
+
+        //searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+
         return true;
     }
 
@@ -187,4 +211,19 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        mSearchText = query;
+        fetch();
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mSearchText = newText;
+        if(!mSearchText.equals("")){
+            fetch();
+        }
+        return false;
+    }
 }

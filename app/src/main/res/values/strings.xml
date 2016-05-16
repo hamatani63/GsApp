@@ -21,4 +21,6 @@
     <string name="no_data_message">No Data</string>
     <!-- Postで追加ここまで-->
 
+    <string name="search_title">検索</string>
+    <string name="search_hint">駅名を入力</string>
 </resources>
