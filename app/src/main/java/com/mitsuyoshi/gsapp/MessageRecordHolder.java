@@ -82,6 +82,7 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder implements OnMa
             //WebView表示
             Intent intent = new Intent(view.getContext(), WebActivity.class);
             intent.putExtra("url", mUrl);
+            intent.putExtra("name", mName);
             view.getContext().startActivity(intent);
         }
     };
