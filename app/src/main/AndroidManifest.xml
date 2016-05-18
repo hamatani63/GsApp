@@ -54,7 +54,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity android:name=".UserActivity" />
-        <activity android:name=".PostActivity" android:configChanges="orientation|screenSize"></activity>
+        <activity android:name=".PostActivity" android:configChanges="orientation|screenSize" />
 
     </application>
 
