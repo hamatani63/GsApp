@@ -3,6 +3,7 @@ package com.mitsuyoshi.gsapp;
 
 public class MessageRecord {
     //保存するデータ全てを変数で定義します。
+    private String id;
     private String imageUrl;
     private String title;
     private String content1;
@@ -13,19 +14,28 @@ public class MessageRecord {
     private int intValue;
     private Boolean mExpanded = false;
 
-    //データを１つ作成する関数です。項目が増えたら増やしましょう。
-    public MessageRecord(String imageUrl, String title, String content1, String content2, String shopUrl, Double lng, Double lat, int intValue) {
+//    //データを１つ作成する関数です。項目が増えたら増やしましょう。
+//    public MessageRecord(String imageUrl, String title, String content1, String content2, String shopUrl, Double lng, Double lat, int intValue) {
+//        this.imageUrl = imageUrl;
+//        this.title = title;
+//        this.content1 = content1;
+//        this.content2 = content2;
+//        this.shopUrl = shopUrl;
+//        this.lng = lng;
+//        this.lat = lat;
+//        this.intValue = intValue;
+//    }
+
+    public MessageRecord(String id, String imageUrl, String title) {
+        this.id = id;
         this.imageUrl = imageUrl;
         this.title = title;
-        this.content1 = content1;
-        this.content2 = content2;
-        this.shopUrl = shopUrl;
-        this.lng = lng;
-        this.lat = lat;
-        this.intValue = intValue;
     }
 
     //それぞれの項目を返す関数です。項目が増えたら増やしましょう。
+    public String getId() {
+        return id;
+    }
     public String getImageUrl() {
         return imageUrl;
     }
