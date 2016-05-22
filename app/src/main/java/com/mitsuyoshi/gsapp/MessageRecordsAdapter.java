@@ -41,14 +41,14 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
         MessageRecord m = mDataList.get(position);
         Log.d("TAG", "position is " + position);
 
-        holder.card.setCardBackgroundColor(m.getIntValue());
+//        holder.card.setCardBackgroundColor(m.getIntValue());
         holder.image.setImageUrl(m.getImageUrl(), mImageLoader);
         holder.titleText.setText(m.getTitle());
-        holder.content1Text.setText(m.getContent1());
-        holder.content2Text.setText(m.getContent2());
-        //for clickListener
-        holder.setShopUrl(m.getShopUrl());
-        holder.setMapLocation(m.getTitle(), m.getLat(), m.getLng());
+//        holder.content1Text.setText(m.getContent1());
+//        holder.content2Text.setText(m.getContent2());
+//        //for clickListener
+//        holder.setShopUrl(m.getShopUrl());
+//        holder.setMapLocation(m.getTitle(), m.getLat(), m.getLng());
         //for view expansion
 //        holder.setIsViewExpanded(mMessageRecord.getExpanded());
     }

@@ -6,13 +6,13 @@ public class MessageRecord {
     private String id;
     private String imageUrl;
     private String title;
-    private String content1;
-    private String content2;
-    private String shopUrl;
-    private Double lng;
-    private Double lat;
-    private int intValue;
-    private Boolean mExpanded = false;
+//    private String content1;
+//    private String content2;
+//    private String shopUrl;
+//    private Double lng;
+//    private Double lat;
+//    private int intValue;
+//    private Boolean mExpanded = false;
 
 //    //データを１つ作成する関数です。項目が増えたら増やしましょう。
 //    public MessageRecord(String imageUrl, String title, String content1, String content2, String shopUrl, Double lng, Double lat, int intValue) {
@@ -42,28 +42,28 @@ public class MessageRecord {
     public String getTitle() {
         return title;
     }
-    public String getContent1(){
-        return content1;
-    }
-    public String getContent2() {
-        return content2;
-    }
-    public String getShopUrl(){
-        return shopUrl;
-    }
-    public Double getLng(){
-        return lng;
-    }
-    public Double getLat(){
-        return lat;
-    }
-    public int getIntValue(){
-        return intValue;
-    }
-    public void setExpanded(Boolean expanded){
-        mExpanded = expanded;
-    }
-    public Boolean getExpanded(){
-        return mExpanded;
-    }
+//    public String getContent1(){
+//        return content1;
+//    }
+//    public String getContent2() {
+//        return content2;
+//    }
+//    public String getShopUrl(){
+//        return shopUrl;
+//    }
+//    public Double getLng(){
+//        return lng;
+//    }
+//    public Double getLat(){
+//        return lat;
+//    }
+//    public int getIntValue(){
+//        return intValue;
+//    }
+//    public void setExpanded(Boolean expanded){
+//        mExpanded = expanded;
+//    }
+//    public Boolean getExpanded(){
+//        return mExpanded;
+//    }
 }
