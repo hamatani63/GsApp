@@ -13,6 +13,7 @@ public class MessageRecord {
 //    private Double lat;
 //    private int intValue;
 //    private Boolean mExpanded = false;
+    private int goodCount;
 
 //    //データを１つ作成する関数です。項目が増えたら増やしましょう。
 //    public MessageRecord(String imageUrl, String title, String content1, String content2, String shopUrl, Double lng, Double lat, int intValue) {
@@ -26,10 +27,11 @@ public class MessageRecord {
 //        this.intValue = intValue;
 //    }
 
-    public MessageRecord(String id, String imageUrl, String title) {
+    public MessageRecord(String id, String imageUrl, String title, int goodCount) {
         this.id = id;
         this.imageUrl = imageUrl;
         this.title = title;
+        this.goodCount = goodCount;
     }
 
     //それぞれの項目を返す関数です。項目が増えたら増やしましょう。
@@ -41,6 +43,12 @@ public class MessageRecord {
     }
     public String getTitle() {
         return title;
+    }
+    public int getGoodCount(){
+        return goodCount;
+    }
+    public void setGoodCount(int goodCount){
+        this.goodCount = goodCount;
     }
 //    public String getContent1(){
 //        return content1;

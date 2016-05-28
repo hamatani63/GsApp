@@ -51,6 +51,8 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
 //        holder.setMapLocation(m.getTitle(), m.getLat(), m.getLng());
         //for view expansion
 //        holder.setIsViewExpanded(mMessageRecord.getExpanded());
+        //ボタンの文字にいいねの数を追加します。
+        buttonView.setText(getContext().getString(R.string.good)+":"+imageRecord.getGoodCount());
     }
 
     @Override

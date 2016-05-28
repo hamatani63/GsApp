@@ -23,4 +23,9 @@
 
     <string name="search_title">検索</string>
     <string name="search_hint">駅名を入力</string>
+
+    <!-- Goodで追加ここから-->
+    <string name="good">いいね</string>
+    <string name="good_done">いいねしました</string>
+    <!-- Goodで追加ここまで-->
 </resources>

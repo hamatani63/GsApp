@@ -81,6 +81,13 @@
             android:textColor="#ffffff"
             android:layout_alignParentEnd="true" />
 
+        <!-- Goodで追加ここから-->
+        <Button android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/good" />
+        <!-- Goodで追加ここまで-->
+
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
