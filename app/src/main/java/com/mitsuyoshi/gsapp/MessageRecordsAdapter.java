@@ -2,6 +2,8 @@
 package com.mitsuyoshi.gsapp;
 
 import android.animation.ValueAnimator;
+import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,14 +12,19 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.kii.cloud.storage.KiiObject;
+import com.kii.cloud.storage.callback.KiiObjectCallBack;
 
 import java.util.List;
 
 public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHolder> {
     private ImageLoader mImageLoader;
     private List<MessageRecord> mDataList;
+    private Context mContext;
 
     public MessageRecordsAdapter(){
         //キャッシュメモリを確保して画像を取得するクラスを作成。これを使って画像をダウンロードする。Volleyの機能
@@ -31,13 +38,14 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
 
     @Override
     public MessageRecordHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        mContext = viewGroup.getContext();
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.message_item, viewGroup, false);
         MessageRecordHolder holder = new MessageRecordHolder(viewGroup.getContext(), v);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(MessageRecordHolder holder, int position) {
+    public void onBindViewHolder(MessageRecordHolder holder, final int position) {
         MessageRecord m = mDataList.get(position);
         Log.d("TAG", "position is " + position);
 
@@ -52,7 +60,44 @@ public class MessageRecordsAdapter extends RecyclerView.Adapter<MessageRecordHol
         //for view expansion
 //        holder.setIsViewExpanded(mMessageRecord.getExpanded());
         //ボタンの文字にいいねの数を追加します。
-        buttonView.setText(getContext().getString(R.string.good)+":"+imageRecord.getGoodCount());
+        holder.goodButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //MessageRecordsAdapterの位置からMessageRecordのデータを得る
+                MessageRecord messageRecord =  getItem(position);
+                //messagesのバケット名と_idの値からKiiObjectのuri(データの場所)を得る。参考：http://documentation.kii.com/ja/starts/cloudsdk/cloudoverview/idanduri/
+                Uri objUri = Uri.parse("kiicloud://buckets/" + "messages" + "/objects/" + messageRecord.getId());
+                //uriから空のデータを作成
+                KiiObject object = KiiObject.createByUri(objUri);
+                //いいねを＋１する。
+                object.set("goodCount", messageRecord.getGoodCount()+ 1);
+                //既存の他のデータ(_id,comment,imageUrlなど)はそのままに、goodCountだけが更新される。参考：http://documentation.kii.com/ja/guides/android/managing-data/object-storages/updating/#full_update
+                object.save(new KiiObjectCallBack() {
+                    //KiiCloudの更新が完了した時
+                    @Override
+                    public void onSaveCompleted(int token, KiiObject object, Exception exception) {
+                        if (exception != null) {
+                            //エラーの時
+                            return;
+                        }
+                        //MessageRecordsAdapterの位置からMessageRecordのデータを得る
+                        MessageRecord messageRecord =  getItem(position);
+                        //messageRecordのいいねの数を+1する。これでKiiCloudの値とListViewのデータが一致する。
+                        messageRecord.setGoodCount(messageRecord.getGoodCount()+1);
+                        //データの変更を通知します。
+                        notifyDataSetChanged();
+                        //トーストを表示.Activityのコンテキストが必要なのでgetContext()してる。
+                        Toast.makeText(mContext, mContext.getString(R.string.good_done), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        holder.goodButton.setText(mContext.getString(R.string.good) + ":" + m.getGoodCount());
+    }
+
+
+    public MessageRecord getItem(int position) {
+        return mDataList.get(position);
     }
 
     @Override

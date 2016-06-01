@@ -3,6 +3,7 @@ package com.mitsuyoshi.gsapp;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -22,6 +23,8 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.kii.cloud.storage.KiiObject;
+import com.kii.cloud.storage.callback.KiiObjectCallBack;
 
 //public class MessageRecordHolder extends RecyclerView.ViewHolder implements OnMapReadyCallback {
 public class MessageRecordHolder extends RecyclerView.ViewHolder {
@@ -32,6 +35,7 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder {
     protected TextView content2Text;
     protected CardView card;
     protected Button button;
+    protected Button goodButton;
     //Website
     private String mUrl;
     //Maps
@@ -55,9 +59,8 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder {
 //        content2Text = (TextView) itemView.findViewById(R.id.shopContent2);
 //        button = (Button) itemView.findViewById(R.id.mapButton);
 //        mapView = (MapView) itemView.findViewById(R.id.map);
-        //Goodで追加ここから　
-        //いいねボタンを得る
-        Button buttonView = (Button) convertView.findViewById(R.id.button1);
+        //Goodで追加ここから
+        goodButton = (Button) itemView.findViewById(R.id.button1);
 
 
         //リスナー実装
@@ -91,46 +94,6 @@ public class MessageRecordHolder extends RecyclerView.ViewHolder {
             view.getContext().startActivity(intent);
         }
     };
-
-    //ボタンを押した時のクリックイベントを定義
-    private buttonView.setOnClickListener(new OnClickListener() {
-        //クリックした時
-        @Override
-        public void onClick(View view) {
-            //いいねボタンを得る
-            Button buttonView = (Button) view;
-            ////タグからどの位置のボタンかを得る
-            //int position = (Integer)buttonView.getTag();
-            //MessageRecordsAdapterの位置からMessageRecordのデータを得る
-            MessageRecord messageRecord =  getItem(position);
-            //messagesのバケット名と_idの値からKiiObjectのuri(データの場所)を得る。参考：http://documentation.kii.com/ja/starts/cloudsdk/cloudoverview/idanduri/
-            Uri objUri = Uri.parse("kiicloud://buckets/" + "messages" + "/objects/" + messageRecord.getId());
-            //uriから空のデータを作成
-            KiiObject object = KiiObject.createByUri(objUri);
-            //いいねを＋１する。
-            object.set("goodCount", messageRecord.getGoodCount()+ 1);
-            //既存の他のデータ(_id,comment,imageUrlなど)はそのままに、goodCountだけが更新される。参考：http://documentation.kii.com/ja/guides/android/managing-data/object-storages/updating/#full_update
-            object.save(new KiiObjectCallBack() {
-                //KiiCloudの更新が完了した時
-                @Override
-                public void onSaveCompleted(int token, KiiObject object, Exception exception) {
-                    if (exception != null) {
-                        //エラーの時
-                        return;
-                    }
-                    //MessageRecordsAdapterの位置からMessageRecordのデータを得る
-                    MessageRecord messageRecord =  getItem(position);
-                    //messageRecordのいいねの数を+1する。これでKiiCloudの値とListViewのデータが一致する。
-                    messageRecord.setGoodCount(messageRecord.getGoodCount()+1);
-                    //データの変更を通知します。
-                    notifyDataSetChanged();
-                    //トーストを表示.Activityのコンテキストが必要なのでgetContext()してる。
-                    Toast.makeText(getContext(), getContext().getString(R.string.good_done), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        }
-    });
 
 //    public void setMapLocation(String name, Double lat, Double lng){
 //        mName = name;

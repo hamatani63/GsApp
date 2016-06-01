@@ -58,6 +58,15 @@
             android:layout_toRightOf="@+id/image"
             android:textSize="11dp" />
 
+        <!-- Goodで追加ここから-->
+        <Button android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/image"
+            android:layout_below="@+id/shopCatch"
+            android:text="@string/good" />
+        <!-- Goodで追加ここまで-->
+
         <com.google.android.gms.maps.MapView
             android:onClick="showMapDetails"
             xmlns:map="http://schemas.android.com/apk/res-auto"
@@ -80,13 +89,6 @@
             android:layout_alignParentRight="true"
             android:textColor="#ffffff"
             android:layout_alignParentEnd="true" />
-
-        <!-- Goodで追加ここから-->
-        <Button android:id="@+id/button1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/good" />
-        <!-- Goodで追加ここまで-->
 
     </RelativeLayout>
 
