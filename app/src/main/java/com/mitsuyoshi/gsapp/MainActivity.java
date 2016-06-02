@@ -2,9 +2,7 @@
 //どのアクティビティーが起動時に実行されるのかはAndroidManifestに記述されています。
 package com.mitsuyoshi.gsapp;
 
-import android.app.ActionBar;
 import android.app.SearchManager;
-import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +19,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.kii.cloud.storage.Kii;
 import com.kii.cloud.storage.KiiUser;
 
 import org.json.JSONArray;
@@ -43,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //KiiCloudの初期化。Applicationクラスで実行してください。キーは自分の値にかえる。
+        Kii.initialize(getApplicationContext(), getString(R.string.kii_app_id), getString(R.string.kii_app_key), Kii.Site.JP);
         //ログインしていない時はログイン画面を表示する
         //KiiCloudでのログイン状態を取得します。nullの時はログインしていない。
         KiiUser user = KiiUser.getCurrentUser();
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         //try catchでエラーを処理します。tryが必要かどうかはtryに記述している関数次第です。
                         try {
                             //jsonデータを下記で定義したparse関数を使いデータクラスにセットしています。
-                            mMessageRecords = parse(jsonObject);
+                            mMessageRecords = parseHotpepper(jsonObject);
                             //データをアダプターにセットしています。
                             mAdapter.setMessageRecords(mMessageRecords);
                             mAdapter.notifyDataSetChanged();
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     //サーバにあるjsonデータをMessageRecordに変換します。
-    private List<MessageRecord> parse(JSONObject json) throws JSONException {
+    private List<MessageRecord> parseHotpepper(JSONObject json) throws JSONException {
         //空のMessageRecordデータの配列を作成
         ArrayList<MessageRecord> records = new ArrayList<MessageRecord>();
         //jsonデータのmessagesにあるJson配列を取得します。
@@ -145,7 +146,75 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             //MessageRecordの配列に追加します。
             records.add(record);
         }
+        return records;
+    }
 
+    private void fetchGnavi() {
+        //jsonデータをサーバーから取得する通信機能です。Volleyの機能です。通信クラスのインスタンスを作成しているだけです。通信はまだしていません。
+        JsonObjectRequest request = new JsonObjectRequest(
+                "http://api.gnavi.co.jp/RestSearchAPI/20150630/" +
+                        "?keyid=f11228f6979ff36949ef05c26d59d8a1" +
+                        "&format=json" +
+                        "&freeword=" + mSearchText ,
+                null,
+                //サーバー通信した結果、成功した時の処理をするクラスを作成しています。
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        //try catchでエラーを処理します。tryが必要かどうかはtryに記述している関数次第です。
+                        try {
+                            //jsonデータを下記で定義したparse関数を使いデータクラスにセットしています。
+                            mMessageRecords = parseGnavi(jsonObject);
+                            //データをアダプターにセットしています。
+                            mAdapter.setMessageRecords(mMessageRecords);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                        catch(JSONException e) {
+                            //トーストを表示
+                            Toast.makeText(getApplicationContext(), "Unable to parse data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                //通信結果、エラーの時の処理クラスを作成。
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //トーストを表示
+                        Toast.makeText(getApplicationContext(), "Unable to fetch data: " + volleyError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+        //作成した通信クラスをキュー、待ち行列にいれて適当なタイミングで通信します。
+        //VolleyApplicationはnewしていません。これはAndroidManifestで記載しているので起動時に自動的にnewされています。
+        VolleyApplication.getInstance().getRequestQueue().add(request);
+    }
+
+    //サーバにあるjsonデータをMessageRecordに変換します。
+    private List<MessageRecord> parseGnavi(JSONObject json) throws JSONException {
+        //空のMessageRecordデータの配列を作成
+        ArrayList<MessageRecord> records = new ArrayList<MessageRecord>();
+        //jsonデータのmessagesにあるJson配列を取得します。
+        JSONArray jsonMessages = json.getJSONArray("rest");
+        //配列の数だけ繰り返します。
+        for (int i =0; i < jsonMessages.length(); i++) {
+            //１つだけ取り出します。
+            JSONObject jsonMessage = jsonMessages.getJSONObject(i);
+            //jsonの値を取得します。
+            String url = jsonMessage.getJSONObject("image_url").getString("shop_image1");
+            String title = jsonMessage.getString("name");
+            String content1 = jsonMessage.getString("category");
+            //String content2 = jsonMessage.getString("opentime"); //営業時間
+            String content2 = jsonMessage.getJSONObject("pr").getString("pr_short"); //PR
+            if(content2.equals("{}")){
+                content2 = "(記載なし)";
+            }
+            String shopUrl = jsonMessage.getString("url");
+            Double shopAddressLng = Double.valueOf(jsonMessage.getString("longitude"));
+            Double shopAddressLat = Double.valueOf(jsonMessage.getString("latitude"));
+            //jsonMessageを新しく作ります。
+            MessageRecord record = new MessageRecord(url, title, content1, content2, shopUrl, shopAddressLng, shopAddressLat, i);
+            //MessageRecordの配列に追加します。
+            records.add(record);
+        }
         return records;
     }
 
