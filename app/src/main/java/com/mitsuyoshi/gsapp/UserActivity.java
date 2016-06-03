@@ -6,28 +6,45 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
+
+import com.kii.cloud.storage.Kii;
 import com.kii.cloud.storage.KiiUser;
+import com.kii.cloud.storage.callback.KiiSocialCallBack;
 import com.kii.cloud.storage.callback.KiiUserCallBack;
 import com.kii.cloud.storage.exception.CloudExecutionException;
+import com.kii.cloud.storage.social.KiiSocialConnect;
+import com.kii.cloud.storage.social.connector.KiiSocialNetworkConnector;
 
 
-public class UserActivity extends ActionBarActivity {
+public class UserActivity extends AppCompatActivity {
     //入力するビューです。
     private EditText mUsernameField;
     private EditText mPasswordField;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
 
         //自動ログインのため保存されているaccess tokenを読み出す。tokenがあれば自動ログインできる
         //SharedPreferences はアプリ用にローカルストレージに保存するためのファイル
@@ -67,17 +84,6 @@ public class UserActivity extends ActionBarActivity {
         mPasswordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         //登録ボタン
         Button signupBtn = (Button) findViewById(R.id.signup_button);
-        //ログインボタン
-        Button loginBtn = (Button) findViewById(R.id.login_button);
-        //ログインボタンをクリックした時の処理を設定
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ログイン処理
-                onLoginButtonClicked(v);
-            }
-        });
-        //登録ボタンをクリックした時の処理を設定
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,6 +91,53 @@ public class UserActivity extends ActionBarActivity {
                 onSignupButtonClicked(v);
             }
         });
+        //ログインボタン
+        Button loginBtn = (Button) findViewById(R.id.login_button);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ログイン処理
+                onLoginButtonClicked(v);
+            }
+        });
+
+        //Facebookログインボタン
+        LoginButton fbLoginButton = (LoginButton) findViewById(R.id.facebookLoginButton);
+        fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.v("FB", "loginSuccess");
+                //Kiiクラウドへのログイン内容を入れる
+                Bundle options = new Bundle();
+                String accessToken = loginResult.getAccessToken().getToken();
+                options.putString("accessToken", accessToken);
+                options.putParcelable("provider", KiiSocialNetworkConnector.Provider.FACEBOOK);
+                //KiiCloudのソーシャル経由のログイン
+                KiiSocialNetworkConnector conn = (KiiSocialNetworkConnector) Kii.socialConnect(KiiSocialConnect.SocialNetwork.SOCIALNETWORK_CONNECTOR);
+                conn.logIn(UserActivity.this, options, new KiiSocialCallBack() {
+                    @Override
+                    public void onLoginCompleted(KiiSocialConnect.SocialNetwork network, KiiUser user, Exception exception) {
+                        if (exception != null) {
+                            Toast.makeText(getApplicationContext(), "Failed to Login to Kii! " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(getApplicationContext(), "Login to Kii! " + user.getID(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            @Override
+            public void onCancel() {
+                Log.v("FB", "Cancelled.");
+                Toast.makeText(getApplicationContext(), "Facebook Login has been cancelled.", Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onError(FacebookException error) {
+                Log.v("FB", "loginFailed");
+                error.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Facebook Login has been failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     //ログイン処理：参考　http://documentation.kii.com/ja/guides/android/managing-users/sign-in/
@@ -183,6 +236,28 @@ public class UserActivity extends ActionBarActivity {
             }
         }
     };
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Kii.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Kii.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == KiiSocialNetworkConnector.REQUEST_CODE) {
+            Kii.socialConnect(KiiSocialConnect.SocialNetwork.SOCIALNETWORK_CONNECTOR)
+                    .respondAuthOnActivityResult(requestCode, resultCode, data);
+        }
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
 
     //メニュー関係：未使用
     @Override
