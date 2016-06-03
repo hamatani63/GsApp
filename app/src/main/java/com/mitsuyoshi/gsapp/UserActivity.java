@@ -4,7 +4,6 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -122,6 +121,8 @@ public class UserActivity extends AppCompatActivity {
                             return;
                         }
                         Toast.makeText(getApplicationContext(), "Login to Kii! " + user.getID(), Toast.LENGTH_SHORT).show();
+                        //自動ログインのためにtokenを保存し、MainActivityへ遷移する
+                        saveToken(user);
                     }
                 });
             }
@@ -137,7 +138,19 @@ public class UserActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Facebook Login has been failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
+    private void saveToken(KiiUser user){
+        //自動ログインのためにSharedPreferenceに保存。アプリのストレージ。参考：http://qiita.com/Yuki_Yamada/items/f8ea90a7538234add288
+        SharedPreferences pref = getSharedPreferences(getString(R.string.save_data_name), Context.MODE_PRIVATE);
+        pref.edit().putString(getString(R.string.save_token), user.getAccessToken()).apply(); //.applyを入れないと実行されないので注意
+
+        // Intent のインスタンスを取得する。getApplicationContext()で自分のコンテキストを取得。遷移先のアクティビティーを.classで指定
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        // 遷移先の画面を呼び出す
+        startActivity(intent);
+        //戻るボタンでログイン画面に戻れないようにActivityを終了しておく。
+        finish();
     }
 
     //ログイン処理：参考　http://documentation.kii.com/ja/guides/android/managing-users/sign-in/
@@ -189,16 +202,8 @@ public class UserActivity extends AppCompatActivity {
         public void onLoginCompleted(int token, KiiUser user, Exception e) {
             // setFragmentProgress(View.INVISIBLE);
             if (e == null) {
-                //自動ログインのためにSharedPreferenceに保存。アプリのストレージ。参考：http://qiita.com/Yuki_Yamada/items/f8ea90a7538234add288
-                SharedPreferences pref = getSharedPreferences(getString(R.string.save_data_name), Context.MODE_PRIVATE);
-                pref.edit().putString(getString(R.string.save_token), user.getAccessToken()).apply(); //.applyを入れないと実行されないので注意
-
-                // Intent のインスタンスを取得する。getApplicationContext()で自分のコンテキストを取得。遷移先のアクティビティーを.classで指定
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                // 遷移先の画面を呼び出す
-                startActivity(intent);
-                //戻るボタンでログイン画面に戻れないようにActivityを終了しておく。
-                finish();
+                //自動ログインのためにtokenを保存し、MainActivityへ遷移する
+                saveToken(user);
             } else {
                 //eには一般的なJavaのエラーのオブジェクトの場合と、KiiCloudのエラーのオブジェクトの場合がある
                 //eがKiiCloud特有のクラスを継承している時
@@ -214,16 +219,8 @@ public class UserActivity extends AppCompatActivity {
         @Override
         public void onRegisterCompleted(int token, KiiUser user, Exception e) {
             if (e == null) {
-                //自動ログインのためにSharedPreferenceに保存。アプリのストレージ。参考：http://qiita.com/Yuki_Yamada/items/f8ea90a7538234add288
-                SharedPreferences pref = getSharedPreferences(getString(R.string.save_data_name), Context.MODE_PRIVATE);
-                pref.edit().putString(getString(R.string.save_token), user.getAccessToken()).apply(); //.applyを入れないと実行されないので注意
-
-                // Intent のインスタンスを取得する。getApplicationContext()で自分のコンテキストを取得。遷移先のアクティビティーを.classで指定
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                // 遷移先の画面を呼び出す
-                startActivity(intent);
-                //戻るボタンでログイン画面に戻れないようにActivityを終了しておく。
-                finish();
+                //自動ログインのためにtokenを保存し、MainActivityへ遷移する
+                saveToken(user);
             } else {
                 //eには一般的なJavaのエラーのオブジェクトの場合と、KiiCloudのエラーのオブジェクトの場合がある
                 //eがKiiCloud特有のクラスを継承している時
