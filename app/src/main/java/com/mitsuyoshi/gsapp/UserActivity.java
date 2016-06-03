@@ -24,6 +24,12 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import io.fabric.sdk.android.Fabric;
+
 import com.kii.cloud.storage.Kii;
 import com.kii.cloud.storage.KiiUser;
 import com.kii.cloud.storage.callback.KiiSocialCallBack;
@@ -31,6 +37,9 @@ import com.kii.cloud.storage.callback.KiiUserCallBack;
 import com.kii.cloud.storage.exception.CloudExecutionException;
 import com.kii.cloud.storage.social.KiiSocialConnect;
 import com.kii.cloud.storage.social.connector.KiiSocialNetworkConnector;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 
 public class UserActivity extends AppCompatActivity {
@@ -38,12 +47,15 @@ public class UserActivity extends AppCompatActivity {
     private EditText mUsernameField;
     private EditText mPasswordField;
     private CallbackManager callbackManager;
+    private TwitterLoginButton loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(getString(R.string.twitter_app_key), getString(R.string.twitter_app_secret));
+        Fabric.with(this, new Twitter(authConfig));
 
         //自動ログインのため保存されているaccess tokenを読み出す。tokenがあれば自動ログインできる
         //SharedPreferences はアプリ用にローカルストレージに保存するためのファイル
@@ -138,6 +150,27 @@ public class UserActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Facebook Login has been failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        //twitterログインボタン
+        loginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
+        loginButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                // The TwitterSession is also available through:
+                // Twitter.getInstance().core.getSessionManager().getActiveSession()
+                TwitterSession session = result.data;
+                // TODO: Remove toast and use the TwitterSession's userID
+                // with your app's user model
+                String msg = "@" + session.getUserName() + " logged in! (#" + session.getUserId() + ")";
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+            }
+            @Override
+            public void failure(TwitterException exception) {
+                Log.d("TwitterKit", "Login with Twitter failure", exception);
+            }
+        });
+
+
     }
 
     private void saveToken(KiiUser user){
@@ -254,6 +287,7 @@ public class UserActivity extends AppCompatActivity {
                     .respondAuthOnActivityResult(requestCode, resultCode, data);
         }
         callbackManager.onActivityResult(requestCode, resultCode, data);
+        loginButton.onActivityResult(requestCode, resultCode, data);
     }
 
     //メニュー関係：未使用

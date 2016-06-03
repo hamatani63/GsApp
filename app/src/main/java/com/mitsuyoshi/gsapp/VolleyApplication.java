@@ -6,7 +6,6 @@ package com.mitsuyoshi.gsapp;
 import android.app.Application;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.kii.cloud.storage.Kii;
 
 //Applicationクラスを継承extend（コピーみたいなもの）しています。Applicationの機能がそのまま使えます。{}までがクラスです。
 //これはクラスの定義です。このクラスを使うにはnewなどをしてインスタンス化（実態を作る）してから使います。
