@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.ndk.CrashlyticsNdk;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -46,16 +48,16 @@ public class UserActivity extends AppCompatActivity {
     //入力するビューです。
     private EditText mUsernameField;
     private EditText mPasswordField;
-    private CallbackManager callbackManager;
-    private TwitterLoginButton loginButton;
+    private CallbackManager mFacebookCallbackManager;
+    private TwitterLoginButton mTwitterLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        callbackManager = CallbackManager.Factory.create();
+        mFacebookCallbackManager = CallbackManager.Factory.create();
         TwitterAuthConfig authConfig = new TwitterAuthConfig(getString(R.string.twitter_app_key), getString(R.string.twitter_app_secret));
-        Fabric.with(this, new Twitter(authConfig));
+        Fabric.with(this, new Crashlytics(), new Twitter(authConfig), new CrashlyticsNdk());
 
         //自動ログインのため保存されているaccess tokenを読み出す。tokenがあれば自動ログインできる
         //SharedPreferences はアプリ用にローカルストレージに保存するためのファイル
@@ -114,7 +116,7 @@ public class UserActivity extends AppCompatActivity {
 
         //Facebookログインボタン
         LoginButton fbLoginButton = (LoginButton) findViewById(R.id.facebookLoginButton);
-        fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        fbLoginButton.registerCallback(mFacebookCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.v("FB", "loginSuccess");
@@ -152,8 +154,8 @@ public class UserActivity extends AppCompatActivity {
         });
 
         //twitterログインボタン
-        loginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
-        loginButton.setCallback(new Callback<TwitterSession>() {
+        mTwitterLoginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
+        mTwitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
                 // The TwitterSession is also available through:
@@ -286,8 +288,8 @@ public class UserActivity extends AppCompatActivity {
             Kii.socialConnect(KiiSocialConnect.SocialNetwork.SOCIALNETWORK_CONNECTOR)
                     .respondAuthOnActivityResult(requestCode, resultCode, data);
         }
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-        loginButton.onActivityResult(requestCode, resultCode, data);
+        mFacebookCallbackManager.onActivityResult(requestCode, resultCode, data);
+        mTwitterLoginButton.onActivityResult(requestCode, resultCode, data);
     }
 
     //メニュー関係：未使用
