@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.kii.cloud.storage.Kii;
 import com.kii.cloud.storage.KiiObject;
 import com.kii.cloud.storage.KiiUser;
@@ -129,6 +131,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onStart();
         //一覧のデータを作成して表示します。
         fetch();
+        //GrowthHackで追加ここから
+        //GAのスクリーン名はアクティビティーの名前を送信します。
+        Tracker t = ((VolleyApplication)getApplication()).getTracker(VolleyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(this.getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
+        //GrowthHackで追加ここまで
     }
 
 

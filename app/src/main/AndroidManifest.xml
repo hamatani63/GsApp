@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".VolleyApplication"
@@ -32,6 +33,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
 
         <activity
             android:name=".MainActivity"
@@ -55,6 +59,10 @@
         </activity>
         <activity android:name=".UserActivity" />
         <activity android:name=".PostActivity" android:configChanges="orientation|screenSize" />
+
+        <!--GrowthHack(ABテスト)で追加ここから-->
+        <service android:name = "com.kii.cloud.analytics.EventUploadService" />
+        <!--GrowthHack(ABテスト)で追加ここまで-->
 
     </application>
 

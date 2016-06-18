@@ -9,6 +9,9 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 public class WebActivity extends AppCompatActivity {
     private WebView mWebView;
 
@@ -34,6 +37,16 @@ public class WebActivity extends AppCompatActivity {
         //URLを表示します。
         mWebView.loadUrl(url);
     }
+
+    //GrowthHackで追加ここから
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Tracker t = ((VolleyApplication)getApplication()).getTracker(VolleyApplication.TrackerName.APP_TRACKER);
+        t.setScreenName(this.getClass().getSimpleName());
+        t.send(new HitBuilders.AppViewBuilder().build());
+    }
+    //GrowthHackで追加ここまで
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){ // Called when you tap a menu item
