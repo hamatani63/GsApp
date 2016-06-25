@@ -21,6 +21,9 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.crittercism.app.Crittercism;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.kii.cloud.storage.Kii;
@@ -82,6 +85,20 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         //一覧のデータを作成して表示します。
         mSearchText = "御茶ノ水";
         fetch();
+
+        //adで追加ここから
+        //adのViewを探す
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        //広告を取得するクラスを作成
+        AdRequest adRequest = new AdRequest.Builder().build();
+        //広告を表示
+        mAdView.loadAd(adRequest);
+        //adで追加ここまで
+        //ad(クラッシュ)で追加ここから
+        //Crittercismの初期化。IDの部分は自分のアプリのIDにしてください。
+        Crittercism.initialize(getApplicationContext(), "1bc96f3009054a99a3125cc032e340b400555300");
+        //mAdapter = null; //クラッシュさせたいとき
+        //ad(クラッシュ)で追加ここまで
     }
 
     //ListView2で追加ここから
